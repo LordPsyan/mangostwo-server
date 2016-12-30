@@ -927,6 +927,10 @@ class WorldSession
         void HandleLfgTeleportRequest(WorldPacket& recv_data);
         void HandleLfgBootVote(WorldPacket& recv_data);
 
+#ifdef ENABLE_PLAYERBOTS
+        void HandleBotPackets();
+#endif
+
     private:
         // private trade methods
         void moveItems(Item* myItems[], Item* hisItems[]);
