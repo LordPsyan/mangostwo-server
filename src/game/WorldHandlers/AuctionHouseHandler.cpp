@@ -35,6 +35,7 @@
 #include "Mail.h"
 #include "Util.h"
 #include "Chat.h"
+#include "mangchat/IRCClient.h"
 #ifdef ENABLE_ELUNA
 #include "LuaEngine.h"
 #endif /* ENABLE_ELUNA */
@@ -377,6 +378,9 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recv_data)
 
     DETAIL_LOG("selling %s to auctioneer %s with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
                itemGuid.GetString().c_str(), auctioneerGuid.GetString().c_str(), bid, buyout, etime, auctionHouseEntry->houseId);
+
+        if (sIRC.BOTMASK & 1024)
+            sIRC.AHFunc(it->GetEntry(), it->GetProto()->Name1, pl->GetName(), auctionHouseEntry->faction);
 
         SendAuctionCommandResult(AH, AUCTION_STARTED, AUCTION_OK);
 

@@ -49,6 +49,7 @@
 #include "MassMailMgr.h"
 #include "DBCStores.h"
 #include "ScriptMgr.h"
+#include "../game/mangchat/IRCClient.h"
 #ifdef ENABLE_SOAP
 #include "SOAP/MaNGOSsoap.h"
 #endif
@@ -209,6 +210,9 @@ int Master::Run()
     ///- Set Realm to Offline, if crash happens. Only used once.
     LoginDatabase.DirectPExecute("UPDATE realmlist SET realmflags = realmflags | %u WHERE id = '%u'", REALM_FLAG_OFFLINE, realmID);
 
+    // Load Mangchat Config (MangChat needs DB for gm levels, AutoBroadcast uses world timers)
+    sIRC.LoadConfig();
+
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
 
@@ -314,6 +318,10 @@ int Master::Run()
         sLog.outError("SOAP is enabled but wasn't included during compilation, not activating it.");
     }
 #endif /* ENABLE_SOAP */
+
+    //Start up MangChat
+    ACE_Based::Thread irc(new IRCClient);
+    irc.setPriority (ACE_Based::High);
 
     ///- Start up freeze catcher thread
     ACE_Based::Thread* freeze_thread = NULL;

@@ -835,6 +835,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "waterwalk",      SEC_GAMEMASTER,     false, &ChatHandler::HandleWaterwalkCommand,           "", NULL },
         { "quit",           SEC_CONSOLE,        true,  &ChatHandler::HandleQuitCommand,                "", NULL },
         { "gearscore",      SEC_ADMINISTRATOR,  false, &ChatHandler::HandleShowGearScoreCommand,       "", NULL },
+        { "ircpm",          SEC_PLAYER,         false, &ChatHandler::HandleIRCpmCommand,               "", NULL },
         { "mmap",           SEC_GAMEMASTER,     false, NULL,                                           "", mmapCommandTable },
 #ifdef ENABLE_PLAYERBOTS
         { "bot",            SEC_PLAYER,         false, &ChatHandler::HandlePlayerbotCommand,           "", NULL },

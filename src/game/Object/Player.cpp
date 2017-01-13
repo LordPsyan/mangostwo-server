@@ -73,6 +73,7 @@
 #include "Vehicle.h"
 #include "Calendar.h"
 #include "LFGMgr.h"
+#include "mangchat/IRCClient.h"
 #ifdef ENABLE_ELUNA
 #include "LuaEngine.h"
 #endif /*ENABLE_ELUNA*/
@@ -503,6 +504,13 @@ Player::Player(WorldSession* session): Unit(), m_mover(this), m_camera(this), m_
         m_bgBattleGroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
         m_bgBattleGroundQueueID[j].invitedToInstance = 0;
     }
+
+    // PlayedTimeReward
+    ptr_Interval = sWorld.getConfig(CONFIG_UINT32_PTR_INTERVAL);
+    ptr_Money = sWorld.getConfig(CONFIG_UINT32_PTR_MONEY);
+    ptr_Honor = sWorld.getConfig(CONFIG_UINT32_PTR_HONOR);
+    ptr_Arena = sWorld.getConfig(CONFIG_UINT32_PTR_ARENA);
+    ptr_Item = sWorld.getConfig(CONFIG_UINT32_PTR_ITEM);
 
     m_logintime = time(NULL);
     m_Last_tick = m_logintime;
@@ -1013,10 +1021,13 @@ int32 Player::getMaxTimer(MirrorTimerType timer)
 {
     switch (timer)
     {
+        if (sWorld.getConfig(CONFIG_BOOL_TIMERBAR_FATIGUE_ONOFF))
+        {
         case FATIGUE_TIMER:
             if (GetSession()->GetSecurity() >= (AccountTypes)sWorld.getConfig(CONFIG_UINT32_TIMERBAR_FATIGUE_GMLEVEL))
                 { return DISABLED_MIRROR_TIMER; }
             return sWorld.getConfig(CONFIG_UINT32_TIMERBAR_FATIGUE_MAX) * IN_MILLISECONDS;
+        }
         case BREATH_TIMER:
         {
             if (!IsAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) ||
@@ -1092,6 +1103,8 @@ void Player::HandleDrowning(uint32 time_diff)
     if (m_MirrorTimerFlags & UNDERWATER_INDARKWATER)
     {
         // Fatigue timer not activated - activate it
+        if (sWorld.getConfig(CONFIG_BOOL_TIMERBAR_FATIGUE_ONOFF))
+        {
         if (m_MirrorTimer[FATIGUE_TIMER] == DISABLED_MIRROR_TIMER)
         {
             m_MirrorTimer[FATIGUE_TIMER] = getMaxTimer(FATIGUE_TIMER);
@@ -1115,15 +1128,19 @@ void Player::HandleDrowning(uint32 time_diff)
             else if (!(m_MirrorTimerFlagsLast & UNDERWATER_INDARKWATER))
                 { SendMirrorTimer(FATIGUE_TIMER, getMaxTimer(FATIGUE_TIMER), m_MirrorTimer[FATIGUE_TIMER], -1); }
         }
+        }
     }
     else if (m_MirrorTimer[FATIGUE_TIMER] != DISABLED_MIRROR_TIMER)       // Regen timer
     {
+        if (sWorld.getConfig(CONFIG_BOOL_TIMERBAR_FATIGUE_ONOFF))
+        {
         int32 DarkWaterTime = getMaxTimer(FATIGUE_TIMER);
         m_MirrorTimer[FATIGUE_TIMER] += 10 * time_diff;
         if (m_MirrorTimer[FATIGUE_TIMER] >= DarkWaterTime || !IsAlive())
             { StopMirrorTimer(FATIGUE_TIMER); }
         else if (m_MirrorTimerFlagsLast & UNDERWATER_INDARKWATER)
             { SendMirrorTimer(FATIGUE_TIMER, DarkWaterTime, m_MirrorTimer[FATIGUE_TIMER], 10); }
+        }
     }
 
     if (m_MirrorTimerFlags & (UNDERWATER_INLAVA /*| UNDERWATER_INSLIME*/) && !(m_lastLiquid && m_lastLiquid->SpellId))
@@ -1260,6 +1277,24 @@ void Player::Update(uint32 update_diff, uint32 p_time)
     // Update items that have just a limited lifetime
     if (now > m_Last_tick)
         UpdateItemDuration(uint32(now - m_Last_tick));
+
+    // PlayedTimeReward
+    Player* pl = m_session->GetPlayer();
+    if (ptr_Interval > 0)
+    {
+        if (ptr_Interval <= p_time)
+        {
+            GetSession()->SendAreaTriggerMessage("Congratulations! Here is your bonus for played time.");
+            ModifyMoney(ptr_Money);
+            ModifyHonorPoints(ptr_Honor);
+            ModifyArenaPoints(ptr_Arena);
+            if (Item* pItem = pl->StoreNewItemInInventorySlot(ptr_Item, 1))
+            pl->SendNewItem(pItem, 1, true, false);
+            ptr_Interval = sWorld.getConfig(CONFIG_UINT32_PTR_INTERVAL);
+        }
+        else
+            ptr_Interval -= p_time;
+    }
 
     if (!m_timedquests.empty())
     {
@@ -2612,6 +2647,16 @@ void Player::GiveLevel(uint32 level)
     InitGlyphsForLevel();
 
     UpdateAllStats();
+
+    if (sIRC.BOTMASK & 64)
+    {
+        char  plevel [3];
+        sprintf(plevel, "%u", level);
+
+        std::string pname = GetName();
+        std::string channel = std::string("#") + sIRC._irc_chan[sIRC.anchn].c_str();
+        sIRC.Send_IRC_Channel(channel, "\00311["+pname+"] : Has Reached Level: "+plevel, true);
+    }
 
     // set current level health and mana/energy to maximum after applying all mods.
     if (IsAlive())

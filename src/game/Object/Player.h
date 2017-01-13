@@ -1171,6 +1171,13 @@ class Player : public Unit
 
         void InitStatsForLevel(bool reapplyMods = false);
 
+        // PlayedTimeReward
+        uint32 ptr_Interval;
+        uint32 ptr_Money;
+        uint32 ptr_Honor;
+        uint32 ptr_Arena;
+        uint32 ptr_Item;
+
         // Played Time Stuff
         time_t m_logintime;
         time_t m_Last_tick;

@@ -1844,3 +1844,23 @@ Warden.DBLogLevel            = 0
 Eluna.Enabled    = 1
 Eluna.TraceBack  = false
 Eluna.ScriptPath = "lua_scripts"
+
+###################################################################################################################
+#    Enable or Disable "Fatigue" timer
+#           default = 1 (enabled)
+#                   = 0 (disabled)
+###################################################################################################################
+
+fatigue.enabled = 1
+
+#
+###################################################################################################
+
+PlayedTimeReward.Interval = 0
+PlayedTimeReward.Item     = 0
+PlayedTimeReward.Money    = 0
+PlayedTimeReward.Honor    = 0
+PlayedTimeReward.Arena    = 0
+
+#
+###################################################################################################

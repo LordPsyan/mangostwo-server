@@ -27,11 +27,13 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/BattleGround
     ${CMAKE_CURRENT_SOURCE_DIR}/ChatCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/Maps
+    ${CMAKE_CURRENT_SOURCE_DIR}/mangchat
     ${CMAKE_CURRENT_SOURCE_DIR}/MotionGenerators
     ${CMAKE_CURRENT_SOURCE_DIR}/Object
     ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
     ${CMAKE_CURRENT_SOURCE_DIR}/References
     ${CMAKE_CURRENT_SOURCE_DIR}/Server
+    ${CMAKE_CURRENT_SOURCE_DIR}/Teleport
     ${CMAKE_CURRENT_SOURCE_DIR}/Tools
     ${CMAKE_CURRENT_SOURCE_DIR}/vmap
     ${CMAKE_CURRENT_SOURCE_DIR}/Warden
@@ -75,6 +77,10 @@ source_group("Chat Commands" FILES ${SRC_GRP_CHAT_COMMANDS})
 file(GLOB SRC_GRP_MAP_THREAD Maps/*.cpp Maps/*.h)
 source_group("Map Threading" FILES ${SRC_GRP_MAP_THREAD})
 
+#Mang Chat group
+file(GLOB SRC_GRP_MANG_CHAT mangchat/*.cpp mangchat/*.h)
+source_group("Mang Chat" FILES ${SRC_GRP_MANG_CHAT})
+
 #Motion Generator group
 file(GLOB SRC_GRP_MOTION_GEN MotionGenerators/*.cpp MotionGenerators/*.h)
 source_group("Motion generators" FILES ${SRC_GRP_MOTION_GEN})
@@ -98,6 +104,10 @@ source_group("References" FILES ${SRC_GRP_REFERENCES})
 #Server group
 file(GLOB SRC_GRP_SERVER Server/*.cpp Server/*.h)
 source_group("Server" FILES ${SRC_GRP_SERVER})
+
+#Teleport group
+file(GLOB SRC_GRP_TELEPORT Teleport/*.cpp Teleport/*.h)
+source_group("Teleport" FILES ${SRC_GRP_TELEPORT})
 
 #Tools group
 file(GLOB SRC_GRP_TOOL Tools/*.cpp Tools/*.h)
@@ -124,12 +134,14 @@ set(LIBRARY_SRCS
     ${SRC_GRP_BATTLEGROUND}
     ${SRC_GRP_CHAT_COMMANDS}
     ${SRC_GRP_MAP_THREAD}
+    ${SRC_GRP_MANG_CHAT}
     ${SRC_GRP_MOTION_GEN}
     ${SRC_GRP_MOVEMENT}
     ${SRC_GRP_OBJECT}
     ${SRC_GRP_OUTDOOR_PVP}
     ${SRC_GRP_REFERENCES}
     ${SRC_GRP_SERVER}
+    ${SRC_GRP_TELEPORT}
     ${SRC_GRP_TOOL}
     ${SRC_GRP_VMAPS}
     ${SRC_GRP_WARDEN}
@@ -137,6 +149,10 @@ set(LIBRARY_SRCS
     ${SRC_GRP_WORLD_HANDLERS}
     pchdef.cpp
     pchdef.h
+)
+
+source_group("MangChat"
+  REGULAR_EXPRESSION mangchat/.*
 )
 
 if(PCH)
@@ -157,6 +173,9 @@ endif()
 if(NOT ACE_USE_EXTERNAL)
     add_dependencies(${LIBRARY_NAME} ace)
 endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mangchat/mangchat.conf.dist.in ${CMAKE_CURRENT_BINARY_DIR}/mangchat/mangchat.conf.dist)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mangchat/mangchat.conf.dist DESTINATION ${CONF_DIR})
 
 # Generate precompiled header
 if(PCH)

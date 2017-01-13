@@ -27,6 +27,7 @@
 #include "World.h"
 #include "SocialMgr.h"
 #include "Chat.h"
+#include "mangchat/IRCClient.h"
 
 Channel::Channel(const std::string& name, uint32 channel_id)
     : m_announce(true), m_moderate(false), m_name(name), m_flags(0), m_channelId(channel_id)
@@ -114,6 +115,8 @@ void Channel::Join(Player* player, const char* password)
     MakeYouJoined(&data);
     SendToOne(&data, guid);
 
+    sIRC.Handle_WoW_Channel(m_name, sObjectMgr.GetPlayer(guid), CHANNEL_JOIN);
+
     JoinNotify(guid);
 
     // if no owner first logged will become
@@ -160,6 +163,8 @@ void Channel::Leave(Player* player, bool send)
     }
 
     LeaveNotify(guid);
+
+    sIRC.Handle_WoW_Channel(m_name, sObjectMgr.GetPlayer(guid), CHANNEL_LEAVE);
 
     if (changeowner)
     {

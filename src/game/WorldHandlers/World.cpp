@@ -74,6 +74,7 @@
 #include "Calendar.h"
 #include "Weather.h"
 #include "LFGMgr.h"
+#include "Teleport/sc_npc_teleport.h"
 #ifdef ENABLE_ELUNA
 #include "LuaEngine.h"
 #endif /*ENABLE_ELUNA*/
@@ -756,6 +757,7 @@ void World::LoadConfigSettings(bool reload)
     setConfigMin(CONFIG_UINT32_GUILD_EVENT_LOG_COUNT, "Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS, GUILD_EVENTLOG_MAX_RECORDS);
     setConfigMin(CONFIG_UINT32_GUILD_BANK_EVENT_LOG_COUNT, "Guild.BankEventLogRecordsCount", GUILD_BANK_MAX_LOGS, GUILD_BANK_MAX_LOGS);
 
+    setConfig(CONFIG_BOOL_TIMERBAR_FATIGUE_ONOFF, "fatigue.enabled", true);
     setConfig(CONFIG_UINT32_TIMERBAR_FATIGUE_GMLEVEL, "TimerBar.Fatigue.GMLevel", SEC_CONSOLE);
     setConfig(CONFIG_UINT32_TIMERBAR_FATIGUE_MAX,     "TimerBar.Fatigue.Max", 60);
     setConfig(CONFIG_UINT32_TIMERBAR_BREATH_GMLEVEL,  "TimerBar.Breath.GMLevel", SEC_CONSOLE);
@@ -785,6 +787,14 @@ void World::LoadConfigSettings(bool reload)
 
     setConfig(CONFIG_BOOL_PLAYERBOT_SHAREDBOTS, "PlayerbotAI.SharedBots", true);
 #endif
+
+//Played Time Patch Start
+    setConfig(CONFIG_UINT32_PTR_INTERVAL, "PlayedTimeReward.Interval", 0);
+    setConfig(CONFIG_UINT32_PTR_MONEY, "PlayedTimeReward.Money", 0);
+    setConfig(CONFIG_UINT32_PTR_HONOR, "PlayedTimeReward.Honor", 0);
+    setConfig(CONFIG_UINT32_PTR_ARENA, "PlayedTimeReward.Arena", 0);
+    setConfig(CONFIG_UINT32_PTR_ITEM, "PlayedTimeReward.Item", 0);
+//Played Time Patch End
 
     // Warden
 
@@ -1357,7 +1367,7 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading CreatureEventAI Scripts...");
     sEventAIMgr.LoadCreatureEventAI_Scripts();
-
+	
     sLog.outString("Initializing Scripts...");
 #ifdef ENABLE_SD3
     switch (sScriptMgr.LoadScriptLibrary(MANGOS_SCRIPT_NAME))
@@ -1464,6 +1474,8 @@ void World::SetInitialWorldSettings()
     uint32 nextGameEvent = sGameEventMgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    // depend on next event
 
+    sLog.outString("Loading TeleNPC2...");
+    LoadNpcTele();
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
 

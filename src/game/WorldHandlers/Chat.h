@@ -625,6 +625,7 @@ class ChatHandler
         bool HandleWaterwalkCommand(char* args);
         bool HandleQuitCommand(char* args);
         bool HandleShowGearScoreCommand(char* args);
+        bool HandleIRCpmCommand(char* args);
 
         bool HandleMmapPathCommand(char* args);
         bool HandleMmapLocCommand(char* args);

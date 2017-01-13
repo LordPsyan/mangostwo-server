@@ -33,6 +33,8 @@
 #include "Log.h"
 #include "Master.h"
 #include "SystemConfig.h"
+#include "../game/mangchat/IRCConf.h"
+#include "../game/mangchat/IRCClient.h"
 #include "AuctionHouseBot.h"
 #include "revision.h"
 #include <openssl/opensslv.h>
@@ -75,6 +77,7 @@ void usage(const char* prog)
                    "    -s run                   run as service\n\r"
                    "    -s install               install service\n\r"
                    "    -s uninstall             uninstall service\n\r"
+                   "    -m MangChat_config       use Mangchat_config as configuration file for MangChat\n\r"
 #else
                    "    Running as daemon functions:\n\r"
                    "    -s run                   run as daemon\n\r"
@@ -87,9 +90,9 @@ void usage(const char* prog)
 extern int main(int argc, char** argv)
 {
     ///- Command line parsing
-    char const* cfg_file = MANGOSD_CONFIG_LOCATION;
+    char const* mc_cfg_file = MANGOSD_CONFIG_LOCATION;
 
-    char const* options = ":a:c:s:";
+    char const* options = ":a:c:m:s:";
 
     ACE_Get_Opt cmd_opts(argc, argv, options);
     cmd_opts.long_option("version", 'v', ACE_Get_Opt::NO_ARG);
@@ -106,7 +109,10 @@ extern int main(int argc, char** argv)
                 sAuctionBotConfig.SetConfigFileName(cmd_opts.opt_arg());
                 break;
             case 'c':
-                cfg_file = cmd_opts.opt_arg();
+                mc_cfg_file = cmd_opts.opt_arg();
+                break;
+            case 'm':
+                mc_cfg_file = cmd_opts.opt_arg();
                 break;
             case 'v':
                 printf("%s\n", REVISION_NR);
@@ -165,9 +171,9 @@ extern int main(int argc, char** argv)
     }
 #endif
 
-    if (!sConfig.SetSource(cfg_file))
+    if (!sConfig.SetSource(mc_cfg_file))
     {
-        sLog.outError("Could not find configuration file %s.", cfg_file);
+        sLog.outError("Could not find configuration file %s.", mc_cfg_file);
         Log::WaitBeforeContinueIfNeed();
         return 1;
     }
@@ -183,6 +189,8 @@ extern int main(int argc, char** argv)
             break;
     }
 #endif
+ 
+    sIRC.SetCfgFile(mc_cfg_file);
 
     sLog.outString("%s [world-daemon]", REVISION_NR);
     sLog.outString("<Ctrl-C> to stop.\n"
@@ -195,7 +203,7 @@ extern int main(int argc, char** argv)
                    "      Website: https://getmangos.eu      | | \\ V  V / _ \\\n"
                    " Forum / Wiki: https://getmangos.eu      |_|  \\_/\\_/\\___/ \n"
                   );
-    sLog.outString("Using configuration file %s.", cfg_file);
+    sLog.outString("Using configuration file %s.", mc_cfg_file);
 
     DETAIL_LOG("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
     if (SSLeay() < 0x009080bfL)

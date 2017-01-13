@@ -1,0 +1,31 @@
+[url]https://gist.github.com/1003422[/url]
+
+Readme:
+Apply sql/custom/mangos_irc.sql
+Copy and configure mangchat.conf
+
+Changes:
+Sql tables renamed to lowercase format
+
+Authors:
+Cybrax <cybraxvd@gmail.com>
+|Death| <death@hell360.net>,
+Lice <lice@yeuxverts.net>
+Dj_baby
+Sanaell
+Tase
+Shinzon <shinzon@wowgollum.com>
+Xeross
+3raZar3
+the orangevirus team <[url=http://www.orangevir.us]www.orangevir.us[/url]>
+
+Todolist:
+Cleanup
+Rewrite
+
+Compiled under win32 VS2008 with VC90.
+[b]Not tested [u]ingame[/u][/b] ;) again but should work ;)
+
+If you want a clean mangos with this patch here up to date go [url=https://github.com/Darkknight900/mangos/tree/mangchat]here[/url]. For a clean patch you can diff it against my [url=https://github.com/Darkknight900/mangos/tree/master]master[/url] branch it has the same rev. as my patched branch or take the gist.
+
+Up to date for current rev. 116xx
